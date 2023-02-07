@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { GetServerSidePropsContext, PreviewData } from 'next'
 import { parseCookies, setCookie } from 'nookies'
 import { ParsedUrlQuery } from 'querystring'
+import { AuthTokenError } from './errors/AuthTokenError'
 
 let isRefreshing = false
 let failedRequestsQueue: any[] = []
@@ -30,7 +31,6 @@ export function setupAPIClient(ctx: undefined | GetServerSidePropsContext<Parsed
 
         if (!isRefreshing) {
           isRefreshing = true
-          console.log('refresh')
 
           api.post('/refresh', {
             refreshToken,
@@ -80,6 +80,9 @@ export function setupAPIClient(ctx: undefined | GetServerSidePropsContext<Parsed
       else {
         if (process.browser) {
           signOut()
+        }
+        else {
+          return Promise.reject(new AuthTokenError())
         }
       }
     }
